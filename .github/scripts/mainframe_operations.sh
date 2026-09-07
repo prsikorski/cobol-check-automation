@@ -11,7 +11,7 @@ export PATH=$PATH:/usr/lpp/zowe/cli/node/bin
 java -version
 
 # Set ZOWE_USERNAME
-ZOWE_USERNAME="Z76100"
+ZOWE_USERNAME="Z76100"  # Replace with your actual username
 
 # Change to the cobolcheck directory
 cd cobolcheck
@@ -30,39 +30,46 @@ cd ..
 
 # Function to run cobolcheck and copy files
 run_cobolcheck() {
-program=$1
-echo "Running cobolcheck for $program"
+  program=$1
+  echo "Running cobolcheck for $program"
 
-# Run cobolcheck, but don't exit if it fails
-./cobolcheck -p $program
-echo "Cobolcheck execution completed for $program (exceptions may have occurred)"
+  # Run cobolcheck, but don't exit if it fails
+  ./cobolcheck -p $program
+  echo "Cobolcheck execution completed for $program (exceptions may have occurred)"
 
-# Check if CC##99.CBL was created, regardless of cobolcheck exit status
-if [ -f "CC##99.CBL" ]; then
-  # Copy to the MVS dataset
-   if cp CC##99.CBL "//'${ZOWE_USERNAME}.CBL($program)'"; then
+  # Note: The "CC##99.CBL" file name below is NOT a placeholder
+  # Keep it as is in the code
+
+  # Check if CC##99.CBL was created, regardless of cobolcheck exit status
+  if [ -f "CC##99.CBL" ]; then
+    # Copy to the MVS dataset
+    if cp CC##99.CBL "//'${ZOWE_USERNAME}.CBL($program)'"; then
       echo "Copied CC##99.CBL to ${ZOWE_USERNAME}.CBL($program)"
-   else
+    else
       echo "Failed to copy CC##99.CBL to ${ZOWE_USERNAME}.CBL($program)"
-   fi
-else
-   echo "CC##99.CBL not found for $program"
-fi
-# Copy the JCL file if it exists
-if [ -f "${program}.JCL" ]; then
-   if cp ${program}.JCL "//'${ZOWE_USERNAME}.JCL($program)'"; then
+    fi
+  else
+    echo "CC##99.CBL not found for $program"
+  fi
+
+  # Copy the JCL file if it exists
+  if [ -f "${program}.JCL" ]; then
+    if cp ${program}.JCL "//'${ZOWE_USERNAME}.JCL($program)'"; then
       echo "Copied ${program}.JCL to ${ZOWE_USERNAME}.JCL($program)"
-   else
+      # Submit job to run testing version of the program
+      submit ${program}.JCL
+      echo "Submitted job ${program}.JCL"
+    else
       echo "Failed to copy ${program}.JCL to ${ZOWE_USERNAME}.JCL($program)"
-   fi
-else
-   echo "${program}.JCL not found"
-fi
+    fi
+  else
+    echo "${program}.JCL not found"
+  fi
 }
 
 # Run for each program
 for program in NUMBERS EMPPAY DEPTPAY; do
-   run_cobolcheck $program
+  run_cobolcheck $program
 done
-echo "Mainframe operations completed"
 
+echo "Mainframe operations completed"
