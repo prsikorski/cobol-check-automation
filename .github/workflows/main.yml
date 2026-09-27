@@ -32,12 +32,12 @@ jobs:
         # Here we'll add our commands to run cobolcheck
         echo "Running COBOL Check"
 
-     - name: Setup Mainframe Environment and Upload COBOL Check
-     - name: Run COBOL Check on Mainframe
-  env:
-    ZOWE_USERNAME: ${{ secrets.ZOWE_USERNAME }}
-    ZOWE_PASSWORD: ${{ secrets.ZOWE_PASSWORD }}
-  run: |
-    sshpass -p "$ZOWE_PASSWORD" ssh -o StrictHostKeyChecking=no $ZOWE_USERNAME@204.90.115.200 'sh -s' < .github/scripts/mainframe_operations.sh
-         chmod +x .github/scripts/zowe_operations.sh
-         .github/scripts/zowe_operations.sh
+    
+    - name: Run COBOL Check on Mainframe
+      env:
+          ZOWE_USERNAME: ${{ secrets.ZOWE_USERNAME }}
+          ZOWE_PASSWORD: ${{ secrets.ZOWE_PASSWORD }}
+      run: |
+         sshpass -p "$ZOWE_PASSWORD" ssh -o StrictHostKeyChecking=no $ZOWE_USERNAME@204.90.115.200 'sh -s' < .github/scripts/mainframe_operations.sh
+            chmod +x .github/scripts/zowe_operations.sh
+           .github/scripts/zowe_operations.sh
